@@ -703,46 +703,6 @@ window.onloadCallback = function() {
   });
 };
 
-/* ---------- RECAPTCHA SECURITY MODULE ---------- */
-
-// 1. Create the Overlay and Captcha Container
-const captchaOverlay = document.createElement("div");
-captchaOverlay.id = "captcha-overlay";
-captchaOverlay.style.cssText = `
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 20000; transition: opacity 0.5s ease;
-`;
-
-const captchaBox = document.createElement("div");
-captchaBox.id = "captcha-container";
-captchaOverlay.appendChild(captchaBox);
-document.body.appendChild(captchaOverlay);
-
-// 2. Load the Google reCAPTCHA Script
-const script = document.createElement("script");
-script.src = "https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit";
-script.async = true;
-script.defer = true;
-document.head.appendChild(script);
-
-// 3. Callback when solved
-window.onloadCallback = function() {
-  grecaptcha.render('captcha-container', {
-    'sitekey': '6Ld1OG8sAAAAAH_GP-RdIBJcsswaN6ZglwEi-i01', // Google's public test key
-    'theme': 'dark',
-    'callback': function(response) {
-       // When solved: Fade out and remove
-       captchaOverlay.style.opacity = "0";
-       setTimeout(() => {
-           captchaOverlay.remove();
-           // botMsg removed as requested
-       }, 500);
-    }
-  });
-};
-
 /* --- DEVTOOLS ERROR INTERCEPTOR --- */
 (function() {
   const originalError = console.error;
