@@ -703,35 +703,45 @@ window.onloadCallback = function() {
   });
 };
 
-/* --- DEVTOOLS ERROR INTERCEPTOR --- */
-(function() {
-  const originalError = console.error;
-  const originalWarn = console.warn;
-  const originalLog = console.log;
+// BLOCKS ALL KEYBOARD SHORTCUTS + RIGHT CLICK
+document.addEventListener('keydown', function(e) {
+    // F12
+    if(e.key === 'F12' || e.keyCode === 123) {
+        e.preventDefault();
+        return false;
+    }
+    // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+    if(e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key)) {
+        e.preventDefault();
+        return false;
+    }
+    // Ctrl+U (view source)
+    if(e.ctrlKey && e.key === 'u') {
+        e.preventDefault();
+        return false;
+    }
+    // Ctrl+Shift+I (alternative keycode method)
+    if(e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+        e.preventDefault();
+        return false;
+    }
+});
 
-  // Intercept Errors
-  console.error = function(...args) {
-    alert("❌ SCRIPT ERROR:\n" + args.join("\n"));
-    originalError.apply(console, args);
-  };
-
-  // Intercept Warnings
-  console.warn = function(...args) {
-    alert("⚠️ WARNING:\n" + args.join("\n"));
-    originalWarn.apply(console, args);
-  };
-
-  // Global Window Errors (The ones that usually break the loading screen)
-  window.onerror = function(message, source, lineno, colno, error) {
-    alert(`🚨 CRITICAL ERROR:\n${message}\nLine: ${lineno}\nFile: ${source}`);
+// BLOCK RIGHT CLICK
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
     return false;
-  };
+});
 
-  // Promise Rejections (Firebase connection issues)
-  window.onunhandledrejection = function(event) {
-    alert("🔗 CONNECTION ERROR:\n" + event.reason);
-  };
-})();
+// DETECT CONSOLE OPEN AND REDIRECT
+let element = new Image();
+Object.defineProperty(element, 'id', {
+    get: function() {
+        window.location.href = 'about:blank';
+        document.body.innerHTML = '<h1>Access Denied</h1>';
+    }
+});
+console.log(element);
   
 </script>
 
