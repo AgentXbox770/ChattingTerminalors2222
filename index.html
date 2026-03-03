@@ -703,6 +703,33 @@ window.onloadCallback = function() {
   });
 };
 
+// Remove old message listener to prevent duplicates
+db.ref("chattingterminalors/messages").off("child_added");
+
+// Add new message listener that handles both text and images
+db.ref("chattingterminalors/messages").limitToLast(100).on("child_added", snap => {
+    const m = snap.val();
+    const line = document.createElement("div");
+    line.style.marginBottom = "2px";
+    const timeStr = getFormattedTime(m.time);
+    const safeName = escapeHTML(m.name);
+    let nameTag = (m.color === "rainbow") 
+        ? `<span class="rainbow-name">${safeName}</span>` 
+        : `<span style="color:${m.color}">${safeName}</span>`;
+    let ownerLabel = (m.name === "👑AgentXbox👑") ? `<span class="owner-tag">[OWNER]</span>` : "";
+    
+    if (m.image) {
+        line.innerHTML = `<span class="timestamp">${timeStr}</span>${nameTag}${ownerLabel}: <img src="${m.image}" style="max-width: 200px; max-height: 200px; border: 2px solid #00ff00; margin: 5px 0; image-rendering: pixelated;">`;
+    } else {
+        const formattedText = parseMessage(m.text);
+        line.innerHTML = `<span class="timestamp">${timeStr}</span>${nameTag}${ownerLabel}: ${formattedText}`;
+    }
+    
+    output.appendChild(line);
+    output.scrollTop = output.scrollHeight;
+});
+
+// Upload button
 const uploadContainer = document.createElement('div');
 uploadContainer.style.cssText = `
     position: absolute;
@@ -772,37 +799,8 @@ uploadButton.addEventListener('mouseleave', () => {
     uploadButton.style.transform = 'scale(1)';
     uploadButton.style.boxShadow = '0 2px 5px rgba(0,255,0,0.3)';
 });
-
-const originalParseMessage = parseMessage;
-parseMessage = function(text, image) {
-    if (image) {
-        return `<img src="${image}" style="max-width: 200px; max-height: 200px; border: 2px solid #00ff00; margin: 5px 0; image-rendering: pixelated;">`;
-    }
-    return originalParseMessage(text);
-};
-
-db.ref("chattingterminalors/messages").limitToLast(100).on("child_added", snap => {
-    const m = snap.val();
-    const line = document.createElement("div");
-    line.style.marginBottom = "2px";
-    const timeStr = getFormattedTime(m.time);
-    const safeName = escapeHTML(m.name);
-    let nameTag = (m.color === "rainbow") 
-        ? `<span class="rainbow-name">${safeName}</span>` 
-        : `<span style="color:${m.color}">${safeName}</span>`;
-    let ownerLabel = (m.name === "👑AgentXbox👑") ? `<span class="owner-tag">[OWNER]</span>` : "";
-    
-    if (m.image) {
-        line.innerHTML = `<span class="timestamp">${timeStr}</span>${nameTag}${ownerLabel}: <img src="${m.image}" style="max-width: 200px; max-height: 200px; border: 2px solid #00ff00; margin: 5px 0; image-rendering: pixelated;">`;
-    } else {
-        const formattedText = parseMessage(m.text);
-        line.innerHTML = `<span class="timestamp">${timeStr}</span>${nameTag}${ownerLabel}: ${formattedText}`;
-    }
-    
-    output.appendChild(line);
-    output.scrollTop = output.scrollHeight;
-}); 
-</script>
-    
+  
+<script>
+  
 </body>
 </html>
