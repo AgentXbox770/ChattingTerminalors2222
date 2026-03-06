@@ -494,35 +494,22 @@ const emoticons = {
   ":error:": "error.png"
 };
 
+// Hook into the existing message parser
 const originalParseMessage = parseMessage;
 
 parseMessage = function(text) {
   let html = originalParseMessage(text);
   
-  const emoticonPattern = /:[a-zA-Z]+:/g;
-  const foundEmoticons = text.match(emoticonPattern) || [];
-  
-  foundEmoticons.forEach(code => {
-    if (!emoticons.hasOwnProperty(code)) {
-      const emoticonList = Object.keys(emoticons).join(', ');
-      db.ref("chattingterminalors/messages").push({
-        name: "Emoticon System",
-        color: "#FFA500",
-        text: `Invalid emoticon: ${code}. List of all emoticons: ${emoticonList}`,
-        time: Date.now()
-      });
-    }
-  });
-  
   Object.keys(emoticons).forEach(code => {
     const imgFile = emoticons[code];
-    const regex = new RegExp(code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "g");
+    const regex = new RegExp(code, "g");
+    // height: 1.2em makes the emoji scale perfectly with your font size
     html = html.replace(regex, `<img src="${imgFile}" alt="${code}" style="height:1.2em; vertical-align:middle; image-rendering: pixelated;">`);
   });
   
   return html;
 };
-
+  
 /* ---------- LOREMIPSUMDOLOR.BOT [LR] - CLEAN VERSION ---------- */
 const lrName = "loremipsumdolor.bot [lr]";
 const lrColor = "#6600FF"; // Electric Indigo
