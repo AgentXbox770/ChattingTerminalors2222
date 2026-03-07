@@ -824,6 +824,221 @@ if (today.getMonth() === 1 && today.getDate() === 10) {
     `;
     document.head.appendChild(style);
 }
+
+/* ---------- WINDOWS 98 WELCOME MODULE ---------- */
+(function() {
+  // Wait for captcha to be completed or create after loading
+  const checkInterval = setInterval(function() {
+    const captchaOverlay = document.getElementById('captcha-overlay');
+    
+    // If captcha overlay is gone or loading is finished
+    if (!captchaOverlay || captchaOverlay.style.display === 'none' || loadingScreen.style.display === 'none') {
+      clearInterval(checkInterval);
+      
+      // Check if user has already seen the welcome message
+      if (!localStorage.getItem('ct_welcome_seen')) {
+        setTimeout(createWelcomeWindow, 1000); // Show after 1 second
+      }
+    }
+  }, 500);
+  
+  function createWelcomeWindow() {
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'welcome-overlay';
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10002;
+    `;
+    
+    // Create Windows 98 window
+    const win98Window = document.createElement('div');
+    win98Window.style.cssText = `
+      width: 400px;
+      background: #c0c0c0;
+      border-top: 2px solid #dfdfdf;
+      border-left: 2px solid #dfdfdf;
+      border-right: 2px solid #404040;
+      border-bottom: 2px solid #404040;
+      box-shadow: 1px 1px 0 0 #000;
+      font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 11px;
+    `;
+    
+    // Title bar
+    const titleBar = document.createElement('div');
+    titleBar.style.cssText = `
+      background: #000080;
+      color: white;
+      padding: 4px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: bold;
+      cursor: default;
+    `;
+    titleBar.innerHTML = `
+      <span>hey!</span>
+      <span style="font-size: 12px;">✕</span>
+    `;
+    
+    // Content area
+    const content = document.createElement('div');
+    content.style.cssText = `
+      padding: 20px;
+    `;
+    
+    // Welcome text
+    const text = document.createElement('div');
+    text.style.cssText = `
+      margin-bottom: 15px;
+      line-height: 1.4;
+    `;
+    text.innerHTML = `
+      Welcome to ChattingTerminalors! Where you find friends or meet peoples.<br>
+      (there's no security. so please be good.)<br><br>
+      Did you know it has a Discord server?<br>
+      <a href="https://discord.gg/bnxs68jg" target="_blank" style="color: #0000FF; text-decoration: underline;">https://discord.gg/bnxs68jg</a>
+    `;
+    
+    // Checkbox container
+    const checkboxContainer = document.createElement('div');
+    checkboxContainer.style.cssText = `
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+    `;
+    
+    // Windows 98 styled checkbox
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = 'accept-checkbox';
+    checkbox.style.cssText = `
+      margin-right: 8px;
+      width: 13px;
+      height: 13px;
+    `;
+    
+    const checkboxLabel = document.createElement('label');
+    checkboxLabel.htmlFor = 'accept-checkbox';
+    checkboxLabel.textContent = 'i accept everything you said my bro';
+    checkboxLabel.style.cursor = 'pointer';
+    
+    checkboxContainer.appendChild(checkbox);
+    checkboxContainer.appendChild(checkboxLabel);
+    
+    // Button container
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.cssText = `
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 20px;
+    `;
+    
+    // OK Button (initially hidden)
+    const okButton = document.createElement('button');
+    okButton.textContent = 'OK';
+    okButton.disabled = true;
+    okButton.style.display = 'none';
+    
+    // Windows 98 button styles
+    okButton.style.cssText = `
+      min-width: 75px;
+      padding: 6px 12px;
+      background: #c0c0c0;
+      border-top: 2px solid #ffffff;
+      border-left: 2px solid #ffffff;
+      border-right: 2px solid #808080;
+      border-bottom: 2px solid #808080;
+      font-family: 'MS Sans Serif', 'Segoe UI', sans-serif;
+      font-size: 11px;
+      cursor: pointer;
+      outline: none;
+    `;
+    
+    // Button press effect
+    okButton.addEventListener('mousedown', function() {
+      this.style.borderTop = '2px solid #808080';
+      this.style.borderLeft = '2px solid #808080';
+      this.style.borderRight = '2px solid #ffffff';
+      this.style.borderBottom = '2px solid #ffffff';
+    });
+    
+    okButton.addEventListener('mouseup', function() {
+      this.style.borderTop = '2px solid #ffffff';
+      this.style.borderLeft = '2px solid #ffffff';
+      this.style.borderRight = '2px solid #808080';
+      this.style.borderBottom = '2px solid #808080';
+    });
+    
+    okButton.addEventListener('mouseleave', function() {
+      this.style.borderTop = '2px solid #ffffff';
+      this.style.borderLeft = '2px solid #ffffff';
+      this.style.borderRight = '2px solid #808080';
+      this.style.borderBottom = '2px solid #808080';
+    });
+    
+    okButton.addEventListener('click', function() {
+      localStorage.setItem('ct_welcome_seen', 'true');
+      document.body.removeChild(overlay);
+    });
+    
+    // Checkbox change handler
+    checkbox.addEventListener('change', function() {
+      if (this.checked) {
+        okButton.style.display = 'inline-block';
+        okButton.disabled = false;
+      } else {
+        okButton.style.display = 'none';
+        okButton.disabled = true;
+      }
+    });
+    
+    // Assemble everything
+    buttonContainer.appendChild(okButton);
+    
+    content.appendChild(text);
+    content.appendChild(checkboxContainer);
+    content.appendChild(buttonContainer);
+    
+    win98Window.appendChild(titleBar);
+    win98Window.appendChild(content);
+    overlay.appendChild(win98Window);
+    
+    // Add to body
+    document.body.appendChild(overlay);
+    
+    // Make window draggable (optional)
+    let isDragging = false;
+    let offsetX, offsetY;
+    
+    titleBar.addEventListener('mousedown', function(e) {
+      isDragging = true;
+      offsetX = e.clientX - win98Window.offsetLeft;
+      offsetY = e.clientY - win98Window.offsetTop;
+    });
+    
+    document.addEventListener('mousemove', function(e) {
+      if (isDragging) {
+        win98Window.style.left = (e.clientX - offsetX) + 'px';
+        win98Window.style.top = (e.clientY - offsetY) + 'px';
+        win98Window.style.position = 'absolute';
+      }
+    });
+    
+    document.addEventListener('mouseup', function() {
+      isDragging = false;
+    });
+  }
+})();
   
 </script>
 
