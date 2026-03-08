@@ -1040,92 +1040,30 @@ if (today.getMonth() === 1 && today.getDate() === 10) {
   }
 })();
 
-/* ---------- REORDER USER LIST WITH LOREM BOT BELOW SYSTEM32 ---------- */
-// Override the user list rendering to ensure lorem bot appears below System32
-const originalUserHandler = db.ref("chattingterminalors/users").on;
-
-db.ref("chattingterminalors/users").on = function(eventType, callback, cancelCallback, context) {
-  if (eventType === "value") {
-    return originalUserHandler.call(this, eventType, function(snap) {
-      hideLoading();
-      userList.innerHTML = "";
-      
-      // Create System32 bot first (always at the top)
-      const system32Div = document.createElement("div");
-      system32Div.className = "user";
-      system32Div.style.color = "#00ff00";
-      system32Div.textContent = "System32 [/]";
-      userList.appendChild(system32Div);
-      
-      // Create loremipsumdolor.bot [lr] second (right below System32)
-      const loremDiv = document.createElement("div");
-      loremDiv.className = "user";
-      loremDiv.style.color = "#6600FF"; // Electric Indigo
-      loremDiv.textContent = "loremipsumdolor.bot [lr]";
-      userList.appendChild(loremDiv);
-      
-      // Create an array to store regular users
-      const regularUsers = [];
-      
-      // Process all users from Firebase
-      snap.forEach(child => {
-        const u = child.val();
-        
-        // Skip if it's one of our bots
-        if (u.name === "System32 [/]" || u.name === "loremipsumdolor.bot [lr]") {
-          return;
-        }
-        
-        regularUsers.push({
-          name: u.name,
-          color: u.color,
-          key: child.key
-        });
+/* ---------- AUTO-ADD LOREM BOT TO USERS LIST ---------- */
+(function addLoremBotToUsers() {
+  // Check if lorem bot already exists in users
+  db.ref("chattingterminalors/users").once("value", function(snap) {
+    let loremBotExists = false;
+    
+    snap.forEach(function(child) {
+      if (child.val().name === "loremipsumdolor.bot [lr]") {
+        loremBotExists = true;
+      }
+    });
+    
+    // Only add if it doesn't already exist
+    if (!loremBotExists) {
+      db.ref("chattingterminalors/users").push({
+        name: "loremipsumdolor.bot [lr]",
+        color: "#6600FF"
       });
-      
-      // Sort regular users alphabetically
-      regularUsers.sort((a, b) => a.name.localeCompare(b.name));
-      
-      // Add all regular users
-      regularUsers.forEach(user => {
-        const div = document.createElement("div");
-        div.className = "user";
-        
-        if (user.color === "rainbow") {
-          div.classList.add("rainbow-name");
-        } else {
-          div.style.color = user.color;
-        }
-        
-        div.textContent = user.name;
-        
-        // Add owner tag for AgentXbox
-        if (user.name === "👑AgentXbox👑") {
-          const tag = document.createElement("span");
-          tag.className = "owner-tag";
-          tag.textContent = " [OWNER]";
-          div.appendChild(tag);
-        }
-        
-        // Add admin tag for NotBryan
-        if (user.name === "NotBryan") {
-          const tag = document.createElement("span");
-          tag.className = "owner-tag admin-tag";
-          tag.textContent = " [ADMIN]";
-          div.appendChild(tag);
-        }
-        
-        userList.appendChild(div);
-      });
-      
-      // Call the original callback if needed
-      if (callback) callback(snap);
-      
-    }, cancelCallback, context);
-  } else {
-    return originalUserHandler.call(this, eventType, callback, cancelCallback, context);
-  }
-};
+      console.log("Lorem bot added to users list");
+    } else {
+      console.log("Lorem bot already exists in users list");
+    }
+  });
+})();
   
 </script>
 
