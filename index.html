@@ -1092,6 +1092,46 @@ db.ref("chattingterminalors/messages")
     output.appendChild(line);
     output.scrollTop = output.scrollHeight;
   });
+
+function replaceAllEmojis() {
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+  let node;
+
+  while(node = walker.nextNode()) {
+    let text = node.nodeValue;
+    // Regex to match all emojis
+    const emojiRegex = /\p{Emoji_Presentation}|\p{Emoji}\uFE0F/gu;
+    if(text.match(emojiRegex)) {
+      const replaced = text.replace(emojiRegex, emoji => {
+        // Discord/Roblox mapping if you have it
+        const customMap = {
+          "😀": "https://cdn.discordapp.com/emojis/123456789012345678.png",
+          "😂": "https://cdn.discordapp.com/emojis/234567890123456789.png",
+        };
+        if(customMap[emoji]) return `<img src="${customMap[emoji]}" alt="${emoji}" class="custom-emoji">`;
+        // Fallback to Twemoji
+        const codepoint = Array.from(emoji).map(c => c.codePointAt(0).toString(16)).join('-');
+        return `<img src="https://twemoji.maxcdn.com/v/latest/72x72/${codepoint}.png" alt="${emoji}" class="custom-emoji">`;
+      });
+      const span = document.createElement("span");
+      span.innerHTML = replaced;
+      node.parentNode.replaceChild(span, node);
+    }
+  }
+}
+
+// Emoji style
+const style = document.createElement('style');
+style.textContent = `
+.custom-emoji {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.1em;
+}
+`;
+document.head.appendChild(style);
+
+window.addEventListener('DOMContentLoaded', replaceAllEmojis);
   
 </script>
 
