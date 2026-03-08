@@ -1064,6 +1064,34 @@ if (today.getMonth() === 1 && today.getDate() === 10) {
     }
   });
 })();
+
+// Suporte a imagens por URL no chat
+db.ref("chattingterminalors/messages")
+  .limitToLast(100)
+  .on("child_added", snap => {
+    const m = snap.val();
+    const line = document.createElement("div");
+    line.style.marginBottom = "6px";
+
+    let textContent = escapeHTML(m.text || "");
+
+    // Detecta URLs de imagem no texto
+    const imageRegex = /(https?:\/\/[^\s]+\.(png|jpg|jpeg|gif|webp))/gi;
+    const images = textContent.match(imageRegex) || [];
+
+    let imgHtml = "";
+    if (images.length > 0) {
+      images.forEach(url => {
+        imgHtml += `<img src="${url}" class="chat-image" alt="Imagem enviada" onerror="this.style.display='none';">`;
+      });
+      textContent = textContent.replace(imageRegex, ''); // remove URL do texto pra não duplicar
+    }
+
+    line.innerHTML = `<span class="timestamp">[${getTime()}]</span> 
+<span style="color:${m.color}">${escapeHTML(m.name)}</span>: ${textContent}${imgHtml}`;
+    output.appendChild(line);
+    output.scrollTop = output.scrollHeight;
+  });
   
 </script>
 
